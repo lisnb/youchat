@@ -2,7 +2,7 @@
 * @Author: lisnb.pc
 * @Date:   2016-03-25 20:23:24
 * @Last Modified by:   lisnb
-* @Last Modified time: 2016-03-26 01:26:16
+* @Last Modified time: 2016-03-26 01:44:09
 */
 
 
@@ -13,12 +13,12 @@ var YouChat = {
         return Math.random().toString(36);
     },
     msgidcachelimit: 10000,
-    clearcache():function(){
+    clearcache:function(){
         if(YouChat.msgidcache.length >= YouChat.msgidcachelimit){
             YouChat.msgidcache = {};
         }
     },
-    getmsgs: function{
+    getmsgs: function(){
         var contents_div = $("div[class='content']");
         var msgs = [];
         if(contents_div.length === 0)
@@ -75,11 +75,11 @@ var YouChat = {
             msgs.push(msg);
         }
         msgs.reverse()
-        console.log(msgs);
+        // console.log(msgs);
         return msgs;
     },
-    server: 'http://localhost:8000/rest/youchat/msg/'
-    send: function(msgs){
+    server: 'https://localhost:8000/rest/youchat/msg/',
+    sendtoserver: function(msgs){
         var query = {
             msgs: msgs
         };
@@ -88,16 +88,19 @@ var YouChat = {
                 console.log(data);
             }
         })
+    },
+    send: function(msgs){
+        console.log(msgs)
     }
     refresh: function(){
         var msgs = YouChat.getmsgs();
         YouChat.send(msgs);
-    }
+    },
     refreshinterval:undefined,
     refreshtime: 5000,
     start: function(){
         YouChat.refreshinterval = setInterval(YouChat.refresh, YouChat.interval);
-    }
+    },
     stop:function(){
         clearInterval(YouChat.refreshinterval);
     }
