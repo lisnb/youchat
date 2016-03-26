@@ -2,7 +2,7 @@
 * @Author: lisnb.pc
 * @Date:   2016-03-25 20:23:24
 * @Last Modified by:   lisnb
-* @Last Modified time: 2016-03-26 01:44:09
+* @Last Modified time: 2016-03-26 13:32:08
 */
 
 
@@ -44,7 +44,7 @@ var YouChat = {
                     if(cm.msgId in YouChat.msgidcache)
                         break;
                     msg.id = cm.msgId;
-                    msg.sernder = cm.actualSender;
+                    msg.sender = cm.actualSender;
                     var user_h4 = $(contents_div[i]).find("h4");
                     if(user_h4){
                         msg.user = $(user_h4).text() || "本人";
@@ -60,7 +60,7 @@ var YouChat = {
                             msg.type = "表情";
                         }else if(cm.msgType==="3"){
                             msg.type= "图片";
-                            var img = $(content).find("img.msg-img");
+                            var img = $(contents_div[i]).find("img.msg-img");
                             if(img){
                                 var src_base64 = $(img).attr("ng-src");
                                 msg.imgencoding = "base64";
@@ -89,17 +89,18 @@ var YouChat = {
             }
         })
     },
-    send: function(msgs){
+    sendtest: function(msgs){
         console.log(msgs)
-    }
+    },
     refresh: function(){
         var msgs = YouChat.getmsgs();
-        YouChat.send(msgs);
+        YouChat.sendtest(msgs);
     },
     refreshinterval:undefined,
     refreshtime: 5000,
     start: function(){
-        YouChat.refreshinterval = setInterval(YouChat.refresh, YouChat.interval);
+        YouChat.refreshinterval = setInterval(YouChat.refresh, YouChat.refreshtime);
+        console.log('staring...')
     },
     stop:function(){
         clearInterval(YouChat.refreshinterval);
@@ -186,4 +187,5 @@ var YouChat = {
 
 // refresh()
 // var refresh_interval = setInterval(refresh,5000);
+window._YouChat = YouChat;
 YouChat.start()
