@@ -26,7 +26,7 @@
     "permissions": ["tabs", "storage"],
     "content_scripts": [{
         "css": ["youchat.css"],
-        "js": ["jquery.min.js","youchat.js"],
+        "js": ["jquery.min.js", "url.min.js", "youchat.js"],
         "matches": ["https://wx.qq.com/*"]
     }]
 }
