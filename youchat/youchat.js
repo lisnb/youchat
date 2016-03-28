@@ -2,7 +2,7 @@
 * @Author: lisnb.pc
 * @Date:   2016-03-25 20:23:24
 * @Last Modified by:   lisnb
-* @Last Modified time: 2016-03-26 01:26:16
+* @Last Modified time: 2016-03-28 11:09:12
 */
 
 
@@ -60,7 +60,7 @@ var YouChat = {
                             msg.type = "表情";
                         }else if(cm.msgType==="3"){
                             msg.type= "图片";
-                            var img = $(content).find("img.msg-img");
+                            var img = $(contents_div[i]).find("img.msg-img");
                             if(img){
                                 var src_base64 = $(img).attr("ng-src");
                                 msg.imgencoding = "base64";
