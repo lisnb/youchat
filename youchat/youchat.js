@@ -1,8 +1,8 @@
 /*
 * @Author: lisnb.pc
 * @Date:   2016-03-25 20:23:24
-* @Last Modified by:   lisnb
-* @Last Modified time: 2016-03-28 11:09:12
+* @Last Modified by:   lisnb.pc
+* @Last Modified time: 2016-03-28 11:22:46
 */
 
 
@@ -13,12 +13,12 @@ var YouChat = {
         return Math.random().toString(36);
     },
     msgidcachelimit: 10000,
-    clearcache():function(){
+    clearcache:function(){
         if(YouChat.msgidcache.length >= YouChat.msgidcachelimit){
             YouChat.msgidcache = {};
         }
     },
-    getmsgs: function{
+    getmsgs: function(){
         var contents_div = $("div[class='content']");
         var msgs = [];
         if(contents_div.length === 0)
@@ -33,7 +33,6 @@ var YouChat = {
                 'body':undefined,
                 'id':undefined
             };
-            
             var message_div = $(contents_div[i]).find("div");
             if(message_div){
                 // console.log('message_div')
@@ -44,10 +43,10 @@ var YouChat = {
                     if(cm.msgId in YouChat.msgidcache)
                         break;
                     msg.id = cm.msgId;
-                    msg.sernder = cm.actualSender;
+                    msg.sender = cm.actualSender;
                     var user_h4 = $(contents_div[i]).find("h4");
                     if(user_h4){
-                        msg.user = $(user_h4).text() || "本人";
+                        msg.user = $(user_h4).text() || "【本人】或者未显示";
                     }
                     if(cm.msgType){
                         if(cm.msgType==="1"){
@@ -75,10 +74,10 @@ var YouChat = {
             msgs.push(msg);
         }
         msgs.reverse()
-        console.log(msgs);
+        // console.log(msgs);
         return msgs;
     },
-    server: 'http://localhost:8000/rest/youchat/msg/'
+    server: 'http://localhost:8000/rest/youchat/msg/',
     send: function(msgs){
         var query = {
             msgs: msgs
@@ -88,16 +87,17 @@ var YouChat = {
                 console.log(data);
             }
         })
-    }
+    },
     refresh: function(){
         var msgs = YouChat.getmsgs();
-        YouChat.send(msgs);
-    }
+        // YouChat.send(msgs);
+        console.info(msgs);
+    },
     refreshinterval:undefined,
     refreshtime: 5000,
     start: function(){
-        YouChat.refreshinterval = setInterval(YouChat.refresh, YouChat.interval);
-    }
+        YouChat.refreshinterval = setInterval(YouChat.refresh, YouChat.refreshtime);
+    },
     stop:function(){
         clearInterval(YouChat.refreshinterval);
     }
