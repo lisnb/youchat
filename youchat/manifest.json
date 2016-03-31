@@ -21,9 +21,9 @@
 
     },
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["jquery.min.js", "config.js", "background.js"]
     },
-    "permissions": ["tabs", "storage"],
+    "permissions": ["tabs", "storage", "http://10.61.3.89/*", "https://jsjqz.cqnews.net/*"],
     "content_scripts": [{
         "css": ["youchat.css"],
         "js": ["jquery.min.js", "url.min.js", "youchat.js"],

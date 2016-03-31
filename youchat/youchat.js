@@ -2,7 +2,7 @@
 * @Author: lisnb.pc
 * @Date:   2016-03-25 20:23:24
 * @Last Modified by:   lisnb
-* @Last Modified time: 2016-03-28 18:34:18
+* @Last Modified time: 2016-03-31 20:56:02
 */
 
 
@@ -32,7 +32,6 @@ var YouChat = {
             
             var bubble_div = $(content).find("div");
             if(bubble_div){
-                // console.log('bubble_div')
                 var cm = $(bubble_div).data("cm");
                 if(cm){
                     if(!cm.msgId)
@@ -51,8 +50,20 @@ var YouChat = {
                             msg.type = "文字;"
                             msg.typecode = 1;
                             var body_pre = $(content).find("pre");
-                            if(body_pre)
+                            if(body_pre){
                                 msg.body = $(body_pre).text();
+                                var urls_a = $(body_pre).find("a");
+                                if(urls_a){
+                                    msg.urls = [];
+                                    for(var ai = 0;ai<urls_a.length;ai++){
+                                        msg.urls.push({
+                                            title: $(urls_a[ai]).find("h4.title").text() || "[无标题]",
+                                            desc: $(urls_a[ai]).find("p.desc").text() || "[无摘要]",
+                                            href: url('?requrl', $(urls_a[ai]).attr('href')) || undefined,
+                                        })
+                                    }
+                                }
+                            }
                         }else if(cm.msgType==="47"){
                             //emotion
                             msg.type = "表情";
@@ -72,12 +83,11 @@ var YouChat = {
                             msg.typecode = 49;
                             var a = $(bubble_div).find("div>a");
                             if(a){
-                                msg.share = {
+                                msg.urls = [{
                                     title: $(a).find("h4.title").text() || "[无标题]",
                                     desc: $(a).find("p.desc").text() || "[无摘要]",
-                                    href: url('?requrl', $(a).attr('href')) || "[无链接]"
-
-                                }
+                                    href: url('?requrl', $(a).attr('href')) || undefined,
+                                }]
                             }
 
                         }
@@ -86,29 +96,40 @@ var YouChat = {
             }
             // console.log(msg);
             YouChat.msgidcache[msg.id]=undefined;
+            if(YouChat.msgidcache.length > YouChat.msgidcachelimit)
+                YouChat.msgidcache = {}
             msgs.push(msg);
         }
         msgs.reverse()
         // console.log(msgs);
         return msgs;
     },
+    port: chrome.runtime.connect({'name': 'post'}),
     server: 'https://localhost:8000/rest/youchat/msg/',
-    sendtoserver: function(msgs){
-        var query = {
-            msgs: msgs
-        };
-        $.post(YouChat.server, query, function(data){
-            if(data){
-                console.log(data);
+    sendtoserver: function(rawitems){
+        // console.log(rawitems);
+        var items = [];
+        for(var i =0; i< rawitems.length;i++){
+            if(rawitems[i].typecode===1 || rawitems[i].typecode===49){
+                if(!rawitems[i].urls)
+                    continue;
+                for(var j=0;j< rawitems[i].urls.length; j++){
+                    var msg = {
+                        url_addr: rawitems[i].urls[j].href,
+                        account: 'wx',
+                    }
+                    YouChat.port.postMessage(msg);
+                }
             }
-        })
+        }
     },
     sendtest: function(msgs){
         console.log(msgs)
     },
     refresh: function(){
         var msgs = YouChat.getmsgs();
-        YouChat.sendtest(msgs);
+        // YouChat.sendtest(msgs);
+        YouChat.sendtoserver(msgs);
     },
     refreshinterval:undefined,
     refreshtime: 5000,
@@ -149,6 +170,15 @@ chrome.runtime.onMessage.addListener(
                     "msg": "YouChat stopped"
                 });
             }
+        } else if (request.command === "syncconfig"){
+            console.log(request.command);
+            if(request.config.msgidcachelimit){
+                YouChat.msgidcachelimit = request.config.msgidcachelimit;
+            }
+            if(request.config.refreshinterval){
+                YouChat.refreshtime = request.config.refreshinterval * 1000;
+            }
+            console.log(YouChat);
         } else {
             sendResponse({
                 "msg": "unrecognized command"
